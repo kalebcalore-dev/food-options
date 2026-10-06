@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Options</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f9f5f0;
+      color: #2d2d2d;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #ff6b35;
+      color: white;
+      padding: 24px 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    /* Add form */
+    .add-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      margin-bottom: 28px;
+    }
+
+    .add-section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .add-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .add-row input[type="text"] {
+      flex: 1;
+      min-width: 160px;
+      padding: 12px 16px;
+      border: 2px solid #e8e0d8;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      background: #fdfaf7;
+      color: #2d2d2d;
+    }
+
+    .add-row input[type="text"]:focus {
+      outline: none;
+      border-color: #ff6b35;
+      background: white;
+    }
+
+    .category-select {
+      padding: 12px 14px;
+      border: 2px solid #e8e0d8;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: #fdfaf7;
+      color: #2d2d2d;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .category-select:focus {
+      outline: none;
+      border-color: #ff6b35;
+    }
+
+    .btn-add {
+      padding: 12px 22px;
+      background: #ff6b35;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover { background: #e85a24; }
+    .btn-add:active { transform: scale(0.97); }
+
+    /* Search & filter */
+    .search-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-wrapper svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      pointer-events: none;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 12px 16px 12px 42px;
+      border: 2px solid #e8e0d8;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: white;
+      color: #2d2d2d;
+      transition: border-color 0.2s;
+    }
+
+    #searchInput:focus {
+      outline: none;
+      border-color: #ff6b35;
+    }
+
+    #filterCategory {
+      padding: 12px 14px;
+      border: 2px solid #e8e0d8;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: white;
+      color: #2d2d2d;
+      cursor: pointer;
+    }
+
+    #filterCategory:focus { outline: none; border-color: #ff6b35; }
+
+    /* Stats */
+    .stats {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 14px;
+    }
+
+    .stats span {
+      font-weight: 600;
+      color: #ff6b35;
+    }
+
+    /* Food list */
+    .food-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scroll-behavior: smooth;
+    }
+
+    .food-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .food-list::-webkit-scrollbar-track {
+      background: #f0ebe4;
+      border-radius: 10px;
+    }
+
+    .food-list::-webkit-scrollbar-thumb {
+      background: #ffb69a;
+      border-radius: 10px;
+    }
+
+    .food-list::-webkit-scrollbar-thumb:hover {
+      background: #ff6b35;
+    }
+
+    .food-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .food-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    }
+
+    .food-emoji {
+      font-size: 1.8rem;
+      flex-shrink: 0;
+      width: 44px;
+      text-align: center;
+    }
+
+    .food-info {
+      flex: 1;
+    }
+
+    .food-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #2d2d2d;
+    }
+
+    .food-name mark {
+      background: #fff3cd;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+
+    .food-category {
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .food-tag {
+      display: inline-block;
+      background: #fff0ea;
+      color: #ff6b35;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 6px;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-delete:hover {
+      color: #e53935;
+      background: #ffeaea;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: #bbb;
+    }
+
+    .empty-state .icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+    }
+
+    /* Scroll to top */
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ff6b35;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(255,107,53,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+      z-index: 100;
+    }
+
+    #scrollTopBtn:hover { background: #e85a24; transform: scale(1.08); }
+    #scrollTopBtn.visible { display: flex; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🍽️ Food Options</h1>
+  <p>Add, search, and browse your food list</p>
+</header>
+
+<div class="container">
+
+  <!-- Add food -->
+  <div class="add-section">
+    <h2>Add a Food</h2>
+    <div class="add-row">
+      <input type="text" id="foodNameInput" placeholder="e.g. Margherita Pizza" maxlength="60" />
+      <select class="category-select" id="categoryInput">
+        <option value="🍕 Pizza">🍕 Pizza</option>
+        <option value="🍔 Burgers">🍔 Burgers</option>
+        <option value="🍣 Sushi">🍣 Sushi</option>
+        <option value="🌮 Mexican">🌮 Mexican</option>
+        <option value="🍜 Noodles">🍜 Noodles</option>
+        <option value="🥗 Salads">🥗 Salads</option>
+        <option value="🍰 Desserts">🍰 Desserts</option>
+        <option value="🥤 Drinks">🥤 Drinks</option>
+        <option value="🍳 Breakfast">🍳 Breakfast</option>
+        <option value="🍲 Other">🍲 Other</option>
+      </select>
+      <button class="btn-add" onclick="addFood()">+ Add</button>
+    </div>
+  </div>
+
+  <!-- Search & filter -->
+  <div class="search-section">
+    <div class="search-wrapper">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search foods…" oninput="renderList()" />
+    </div>
+    <select id="filterCategory" onchange="renderList()">
+      <option value="">All Categories</option>
+      <option value="🍕 Pizza">🍕 Pizza</option>
+      <option value="🍔 Burgers">🍔 Burgers</option>
+      <option value="🍣 Sushi">🍣 Sushi</option>
+      <option value="🌮 Mexican">🌮 Mexican</option>
+      <option value="🍜 Noodles">🍜 Noodles</option>
+      <option value="🥗 Salads">🥗 Salads</option>
+      <option value="🍰 Desserts">🍰 Desserts</option>
+      <option value="🥤 Drinks">🥤 Drinks</option>
+      <option value="🍳 Breakfast">🍳 Breakfast</option>
+      <option value="🍲 Other">🍲 Other</option>
+    </select>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <!-- List -->
+  <div class="food-list" id="foodList"></div>
+
+</div>
+
+<button id="scrollTopBtn" onclick="scrollToTop()" title="Back to top">↑</button>
+
+<script>
+  let foods = JSON.parse(localStorage.getItem('foodOptions') || '[]');
+
+  if (foods.length === 0) {
+    foods = [
+      { id: 1, name: 'Margherita Pizza', category: '🍕 Pizza' },
+      { id: 2, name: 'Cheeseburger', category: '🍔 Burgers' },
+      { id: 3, name: 'Spicy Tuna Roll', category: '🍣 Sushi' },
+      { id: 4, name: 'Chicken Tacos', category: '🌮 Mexican' },
+      { id: 5, name: 'Ramen Noodles', category: '🍜 Noodles' },
+      { id: 6, name: 'Caesar Salad', category: '🥗 Salads' },
+      { id: 7, name: 'Chocolate Lava Cake', category: '🍰 Desserts' },
+    ];
+    save();
+  }
+
+  function save() {
+    localStorage.setItem('foodOptions', JSON.stringify(foods));
+  }
+
+  function getEmoji(category) {
+    return category.split(' ')[0];
+  }
+
+  function highlight(text, query) {
+    if (!query) return text;
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+  }
+
+  function addFood() {
+    const nameInput = document.getElementById('foodNameInput');
+    const categoryInput = document.getElementById('categoryInput');
+    const name = nameInput.value.trim();
+    if (!name) {
+      nameInput.focus();
+      nameInput.style.borderColor = '#e53935';
+      setTimeout(() => nameInput.style.borderColor = '', 1200);
+      return;
+    }
+    foods.unshift({ id: Date.now(), name, category: categoryInput.value });
+    save();
+    nameInput.value = '';
+    nameInput.focus();
+    renderList();
+  }
+
+  function deleteFood(id) {
+    foods = foods.filter(f => f.id !== id);
+    save();
+    renderList();
+  }
+
+  function renderList() {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    const filterCat = document.getElementById('filterCategory').value;
+    const listEl = document.getElementById('foodList');
+    const statsEl = document.getElementById('stats');
+
+    let filtered = foods;
+    if (filterCat) filtered = filtered.filter(f => f.category === filterCat);
+    if (query) filtered = filtered.filter(f => f.name.toLowerCase().includes(query));
+
+    statsEl.innerHTML = `Showing <span>${filtered.length}</span> of <span>${foods.length}</span> items`;
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">${query || filterCat ? '🔍' : '🍴'}</div>
+          <p>${query || filterCat ? 'No foods match your search.' : 'No foods yet. Add one above!'}</p>
+        </div>`;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(f => `
+      <div class="food-card">
+        <div class="food-emoji">${getEmoji(f.category)}</div>
+        <div class="food-info">
+          <div class="food-name">${highlight(f.name, query)}</div>
+          <div class="food-category">${f.category.slice(2)}</div>
+        </div>
+        <span class="food-tag">${f.category.slice(2)}</span>
+        <button class="btn-delete" onclick="deleteFood(${f.id})" title="Remove">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  // Enter key to add
+  document.getElementById('foodNameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addFood();
+  });
+
+  // Scroll-to-top button visibility
+  const listEl = document.getElementById('foodList');
+  const scrollBtn = document.getElementById('scrollTopBtn');
+
+  listEl.addEventListener('scroll', () => {
+    if (listEl.scrollTop > 120) scrollBtn.classList.add('visible');
+    else scrollBtn.classList.remove('visible');
+  });
+
+  function scrollToTop() {
+    listEl.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  renderList();
+</script>
+</body>
+</html>
